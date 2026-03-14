@@ -12,6 +12,8 @@ Coordinate system
 #pragma once
 #include <time.h>
 #include <stdlib.h>
+#include <SDL2/SDL.h>
+
 enum GAME_TEX{ BACKGROUND, GAMEOVER,BLUE_OBJ, GREEN_OBJ, PURPLE_OBJ, RED_OBJ, YELLOW_OBJ };
 
 const int GAME_WITDH			= 755;	//game screen width

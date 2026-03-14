@@ -25,11 +25,14 @@ add_executable(CandyCrush
     main.cpp 
     Animation.cpp 
     AnimationController.cpp 
-    DrawableEntity.cpp 
+    Board.cpp
+    ECS.cpp
     Engine.cpp 
-    GameEntity.cpp 
+    GravityLogic.cpp
+    MatchLogic.cpp
     ResourceController.cpp 
     SceneController.cpp
+    UIManager.cpp
 )
 
 target_link_libraries(CandyCrush 
