@@ -2,33 +2,48 @@
 #include "Common.h"
 #include <iostream>
 
-Animation::~Animation(){}
-Animation::Animation(DrawableEntity* obj, ANIMATION_TYPE type)
+Animation::Animation()
+	: entityManager(nullptr), entity(NULL_ENTITY), type(MOVE), target_x_coor(0), target_y_coor(0),
+	  completed(false), startTime(0)
 {
-	source = obj;
-	this->type = type;
-	calculateTargetState();
-	completed = false;
+}
 
-}
-Animation::Animation(DrawableEntity* obj, ANIMATION_TYPE type, int target_x, int target_y)
+Animation::Animation(EntityManager* em, EntityID ent, ANIMATION_TYPE t)
+	: entityManager(em), entity(ent), type(t), target_x_coor(0), target_y_coor(0),
+	  completed(false), startTime(0)
 {
-	source = obj;
-	this->type = type;
-	this->target_x_coor = target_x;
-	this->target_y_coor = target_y;
-	completed = false;
 	calculateTargetState();
 }
+
+Animation::Animation(EntityManager* em, EntityID ent, ANIMATION_TYPE t, int target_x, int target_y)
+	: entityManager(em), entity(ent), type(t), target_x_coor(target_x), target_y_coor(target_y),
+	  completed(false), startTime(0)
+{
+	calculateTargetState();
+}
+
+Animation::~Animation(){}
 
 void Animation::calculateTargetState()
 {
+	if (!entityManager || entity == NULL_ENTITY)
+	{
+		return;
+	}
+
+	SpriteComponent* sprite = entityManager->getComponent<SpriteComponent>(entity);
+	if (!sprite)
+	{
+		return;
+	}
+
 	calculateRenderPositionFromCoordinate(target_x_coor, target_y_coor, &targetRect);
-	//if it is destroy animation then it will be dissepear on screen so that its w and h wll go to 0 over time
+	
+	//if it is destroy animation then it will disappear on screen so that its w and h will go to 0 over time
 	if (type == DESTROY)
 	{
-		targetRect.x = source->getTargetRect()->x + STONE_WIDTH / 2;
-		targetRect.y = source->getTargetRect()->y + STONE_HEIGHT / 2;
+		targetRect.x = sprite->targetRect.x + STONE_WIDTH / 2;
+		targetRect.y = sprite->targetRect.y + STONE_HEIGHT / 2;
 		targetRect.h = 0;
 		targetRect.w = 0;
 	}
@@ -38,21 +53,33 @@ void Animation::calculateTargetState()
 		calculateRenderPositionFromCoordinate(target_x_coor, target_y_coor, &r);
 		targetRect.x = r.x;
 		targetRect.y = r.y;
-		targetRect.h = source->getTargetRect()->h;
-		targetRect.w = source->getTargetRect()->w;
-
+		targetRect.h = sprite->targetRect.h;
+		targetRect.w = sprite->targetRect.w;
 	}
+	
 	//save the original position of the objects so that they will be calculated for calculations
-	originalRect.x = source->getTargetRect()->x;
-	originalRect.y = source->getTargetRect()->y;
-	originalRect.w = source->getTargetRect()->w;
-	originalRect.h = source->getTargetRect()->h;	
+	originalRect.x = sprite->targetRect.x;
+	originalRect.y = sprite->targetRect.y;
+	originalRect.w = sprite->targetRect.w;
+	originalRect.h = sprite->targetRect.h;	
 }
+
 /*
 	Updates the animation.
 */
 void Animation::tick()
 {
+	if (!entityManager || entity == NULL_ENTITY)
+	{
+		return;
+	}
+
+	SpriteComponent* sprite = entityManager->getComponent<SpriteComponent>(entity);
+	if (!sprite)
+	{
+		return;
+	}
+
 	int new_x = 0;
 	int new_y = 0;
 	int new_w = 0;
@@ -66,7 +93,7 @@ void Animation::tick()
 	//calculate elapsed time
 	Uint32	elapsedTime = SDL_GetTicks() - startTime;
 
-	//if elapsed time bigger then animation duration then we should finish the aniamtion
+	//if elapsed time bigger then animation duration then we should finish the animation
 	if (elapsedTime >= animDuration) //time is up!
 	{
 		new_x = targetRect.x;
@@ -82,25 +109,39 @@ void Animation::tick()
 		new_h = originalRect.h + ((targetRect.h - originalRect.h) * dt);
 		new_w = originalRect.w + ((targetRect.w - originalRect.w) * dt);
 	}
+	
 	//update object positions with calculated ones
-	source->setTargetRectX(new_x);
-	source->setTargetRectY(new_y);
-	source->setTargetRectW(new_w);
-	source->setTargetRectH(new_h);
-
+	sprite->targetRect.x = new_x;
+	sprite->targetRect.y = new_y;
+	sprite->targetRect.w = new_w;
+	sprite->targetRect.h = new_h;
 }
+
 /*
-	check if object reached to target position which means aniamtion completed
+	check if object reached to target position which means animation completed
 */
-bool Animation::isCompleted(){
-	return (source->getTargetRect()->x == targetRect.x  && source->getTargetRect()->y == targetRect.y &&
-			source->getTargetRect()->w == targetRect.w && source->getTargetRect()->h == targetRect.h);
+bool Animation::isCompleted()
+{
+	if (!entityManager || entity == NULL_ENTITY)
+	{
+		return true;
+	}
+
+	SpriteComponent* sprite = entityManager->getComponent<SpriteComponent>(entity);
+	if (!sprite)
+	{
+		return true;
+	}
+
+	return (sprite->targetRect.x == targetRect.x  && sprite->targetRect.y == targetRect.y &&
+			sprite->targetRect.w == targetRect.w && sprite->targetRect.h == targetRect.h);
 }
 
-DrawableEntity* Animation::getSourceObj()
+EntityID Animation::getSourceEntity()
 {
-	return source;
+	return entity;
 }
+
 void Animation::setAnimationStartTime(Uint32 t)
 {
 	startTime = t;
