@@ -1,0 +1,60 @@
+# --- IDE and Editor Specific ---
+.idea/
+cmake-build-*/
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.history/
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# --- CMake Generated ---
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_CPack_Packages/
+
+# --- Build Artifacts ---
+build/
+bin/
+obj/
+out/
+dist/
+
+# --- Compiled Objects and Libraries ---
+*.o
+*.obj
+*.d
+*.elf
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# --- Executables and Logs ---
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+CandyCrush
+*.log
+game_log.txt
+
+# --- Project Specific ---
+# (Add any specific asset-generation or temp files here)

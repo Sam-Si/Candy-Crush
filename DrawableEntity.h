@@ -1,6 +1,6 @@
 #pragma once
 #include "GameEntity.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "Common.h"
 
 /*
@@ -34,4 +34,3 @@ private:
 	SDL_Texture* entityTex = NULL;		//original texture for the game obj
 	
 };
-

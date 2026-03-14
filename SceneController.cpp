@@ -1,5 +1,5 @@
 #include "SceneController.h"
-#include "SDL_image.h"
+#include <SDL2/SDL_image.h>
 
 #include <iostream>
 #include <cmath>
@@ -32,7 +32,11 @@ bool SceneController::init()
 			cout << "Game window could not be created" << endl;
 			success = false;
 		}else{
-			renderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
+			Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
+#ifdef SOFTWARE_ACC
+			rendererFlags = SDL_RENDERER_SOFTWARE;
+#endif
+			renderer = SDL_CreateRenderer(gameWindow, -1, rendererFlags);
 			if (renderer == NULL)
 			{
 				cout << "cannot create renderer" << endl;
@@ -401,7 +405,8 @@ void SceneController::checkPossipleCombosOnBoard()
 	if (possibleCombos->size() > 0)
 	{
 		removeComboItems(possibleCombos);
-	}	
+	}
+	delete possibleCombos;
 }
 
 /*
@@ -666,8 +671,8 @@ bool SceneController::initText()
 	gFont = TTF_OpenFont("Aller_Rg.ttf", 28);
 	if (gFont == NULL)
 	{
-		printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
-		success = false;
+		printf("Failed to load font! Continuing without text. SDL_ttf Error: %s\n", TTF_GetError());
+		success = true; // Don't fail the whole game
 	}
 	else
 	{
@@ -686,6 +691,7 @@ bool SceneController::updateScore(int incScore){
 }
 bool SceneController::updateScore(int incScore, SDL_Color textColor)
 {
+	if (gFont == NULL) return false;
 	ostringstream scr;
 	score += incScore;
 	scr << score;
@@ -723,7 +729,7 @@ bool SceneController::updateTime(){
 	return updateTime(textColor);
 }
 bool SceneController::updateTime( SDL_Color color){
-
+	if (gFont == NULL) return false;
 	Uint32 passed = (SDL_GetTicks() - gameStartTime) / 1000;
 	Uint32 elapsed = GAME_DURATION - passed;
 	ostringstream t;
