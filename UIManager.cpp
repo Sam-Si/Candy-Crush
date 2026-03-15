@@ -14,12 +14,7 @@ void UIManager::cleanup()
 {
 	freeScoreResources();
 	freeTimeResources();
-
-	if (gameoverTexture)
-	{
-		SDL_DestroyTexture(gameoverTexture);
-		gameoverTexture = nullptr;
-	}
+	freeGameOverResources();
 
 	if (gFont)
 	{
@@ -28,6 +23,20 @@ void UIManager::cleanup()
 	}
 
 	renderer = nullptr;
+}
+
+void UIManager::freeGameOverResources()
+{
+	if (gameOverTexture)
+	{
+		SDL_DestroyTexture(gameOverTexture);
+		gameOverTexture = nullptr;
+	}
+	if (gameOverSurface)
+	{
+		SDL_FreeSurface(gameOverSurface);
+		gameOverSurface = nullptr;
+	}
 }
 
 bool UIManager::init(SDL_Renderer* renderer)
@@ -175,14 +184,43 @@ void UIManager::updateTime(Uint32 gameStartTime)
 	createTimeTexture(timeStr, color);
 }
 
-void UIManager::showGameOver()
+void UIManager::showGameOver(int score)
 {
-	// Set up game over rect for rendering
-	gameoverRect.x = (GAME_WITDH - GAMEOVER_WIDTH) / 2;
-	gameoverRect.y = (GAME_HEIGHT - GAMEOVER_HEIGHT) / 2;
-	gameoverRect.w = GAMEOVER_WIDTH;
-	gameoverRect.h = GAMEOVER_HEIGHT;
+	finalScore = score;
 	gameOverVisible = true;
+
+	if (gFont == nullptr) return;
+
+	freeGameOverResources();
+
+	// Create game over text with final score
+	std::ostringstream text;
+	text << "Game Over! Final Score: " << finalScore;
+	std::string gameOverStr = text.str();
+
+	SDL_Color color = { 255, 0, 0 }; // Red text
+	gameOverSurface = TTF_RenderText_Solid(gFont, gameOverStr.c_str(), color);
+	if (gameOverSurface == nullptr)
+	{
+		return;
+	}
+
+	gameOverTexture = SDL_CreateTextureFromSurface(renderer, gameOverSurface);
+	if (gameOverTexture == nullptr)
+	{
+		SDL_FreeSurface(gameOverSurface);
+		gameOverSurface = nullptr;
+		return;
+	}
+
+	// Center the text on screen
+	gameOverTextRect.w = gameOverSurface->w;
+	gameOverTextRect.h = gameOverSurface->h;
+	gameOverTextRect.x = (GAME_WITDH - gameOverTextRect.w) / 2;
+	gameOverTextRect.y = (GAME_HEIGHT - gameOverTextRect.h) / 2;
+
+	SDL_FreeSurface(gameOverSurface);
+	gameOverSurface = nullptr;
 }
 
 void UIManager::hideGameOver()
@@ -211,13 +249,9 @@ void UIManager::render()
 		SDL_RenderCopyEx(renderer, timeTexture, nullptr, &timeTextRect, 0.0, nullptr, SDL_FLIP_NONE);
 	}
 
-	// Render game over if visible
-	if (gameOverVisible)
+	// Render game over if visible (text-based, no image)
+	if (gameOverVisible && gameOverTexture)
 	{
-		SDL_Texture* goTexture = ResourceController::getResource("gameover");
-		if (goTexture)
-		{
-			SDL_RenderCopyEx(renderer, goTexture, nullptr, &gameoverRect, 0.0, nullptr, SDL_FLIP_NONE);
-		}
+		SDL_RenderCopyEx(renderer, gameOverTexture, nullptr, &gameOverTextRect, 0.0, nullptr, SDL_FLIP_NONE);
 	}
 }

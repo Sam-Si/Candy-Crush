@@ -27,8 +27,8 @@ public:
 	// Update time display based on game start time
 	void updateTime(Uint32 gameStartTime);
 
-	// Show game over screen
-	void showGameOver();
+	// Show game over screen with final score
+	void showGameOver(int finalScore);
 
 	// Hide game over screen
 	void hideGameOver();
@@ -58,14 +58,19 @@ private:
 	SDL_Texture* timeTexture = nullptr;
 	SDL_Rect timeTextRect;
 
-	// Game over display (using SDL_Rect instead of DrawableEntity)
-	SDL_Rect gameoverRect;
-	SDL_Texture* gameoverTexture = nullptr;
+	// Game over state (pure score display, no image)
 	bool gameOverVisible = false;
+	int finalScore = 0;
+
+	// Game over text display
+	SDL_Surface* gameOverSurface = nullptr;
+	SDL_Texture* gameOverTexture = nullptr;
+	SDL_Rect gameOverTextRect;
 
 	// Helper methods
 	bool createScoreTexture(const std::string& text, SDL_Color color);
 	bool createTimeTexture(const std::string& text, SDL_Color color);
 	void freeScoreResources();
 	void freeTimeResources();
+	void freeGameOverResources();
 };

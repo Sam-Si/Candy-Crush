@@ -59,9 +59,6 @@ bool ResourceController::loadResources()
 	// Load background
 	resourceMap["background"] = loadTexture("./images/BackGround.jpg", 30, 30, 30, 755, 600);
 
-	// Load game over screen
-	resourceMap["gameover"] = loadTexture("./images/gameover.png", 255, 0, 0, 376, 370);
-
 	// Load game objects with string identifiers
 	struct { const char* id; Uint8 r, g, b; const char* path; } objects[] = {
 		{ "blue", 0, 0, 255, "./images/Blue.png" },

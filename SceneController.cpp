@@ -71,11 +71,20 @@ bool SceneController::init()
 		}
 	}
 
+	// Create EventBus for decoupled system communication
+	eventBus = std::make_unique<EventBus>();
+	gameState.eventBus = eventBus.get();
+
 	// Create systems
-	animationSystem = std::make_unique<AnimationSystem>();
+	// Note: AudioSystem and ScoreSystem must be created before other systems
+	// to ensure they subscribe to events before any events are published
+	audioSystem = std::make_unique<AudioSystem>(gameState);
+	scoreSystem = std::make_unique<ScoreSystem>(gameState);
+	
 	inputSystem = std::make_unique<InputSystem>(gameState);
 	matchSystem = std::make_unique<MatchSystem>(gameState);
 	gravitySystem = std::make_unique<GravitySystem>(gameState);
+	animationSystem = std::make_unique<AnimationSystem>();
 	renderSystem = std::make_unique<RenderSystem>(gameState);
 	uiManager = std::make_unique<UIManager>();
 	
@@ -127,7 +136,7 @@ void SceneController::update()
 	{
 		if (!gameState.gameOver)
 		{
-			uiManager->showGameOver();
+			uiManager->showGameOver(gameState.score);
 		}
 		gameState.gameOver = true;
 		return;
@@ -136,10 +145,27 @@ void SceneController::update()
 	// Update UI
 	uiManager->updateTime(gameState.gameStartTime);
 
-	// Update systems in order
+	// Update systems in strict order:
+	// 1. Input
+	// 2. Logic (Matches, Gravity)
+	// 3. Dispatch events
+	// 4. Audio and Score systems (process dispatched events)
+	// 5. Animation
 	inputSystem->update(MS_60_MS);
 	matchSystem->update(MS_60_MS);
 	gravitySystem->update(MS_60_MS);
+
+	// Dispatch events published by logic systems
+	if (eventBus)
+	{
+		eventBus->dispatch();
+	}
+
+	// Process event-driven systems (Audio, Score)
+	audioSystem->update(MS_60_MS);
+	scoreSystem->update(MS_60_MS);
+
+	// Process animations
 	animationSystem->update(*entityManager, MS_60_MS);
 }
 
