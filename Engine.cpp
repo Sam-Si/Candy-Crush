@@ -1,14 +1,14 @@
 #include "Engine.h"
+#include "AudioController.h"
 #include <SDL2/SDL.h>
 #include <iostream>
+using namespace std;
 
-Engine::Engine() = default;
+Engine::Engine() {}
 
-Engine::~Engine() = default;
+Engine::~Engine() {}
 
-void Engine::destroyGame()
-{
-}
+void Engine::destroyGame() {}
 
 void Engine::initControllers()
 {
@@ -21,17 +21,19 @@ void Engine::initControllers()
 bool Engine::initGame()
 {
 	srand(time(NULL));
-	
+
 	bool success = true;
 	if (resourceController->loadResources() == false)
 	{
 		success = false;
 	}
-	
-	SDL_Texture* bg = resourceController->getResource("background");
+
+	AudioController::getInstance().init();
+	AudioController::getInstance().playBGM("./audio/bgm.ogg");
+
+	SDL_Texture* bg = ResourceController::getResource("background");
 	sceneController->setBackground(bg);
 	sceneController->generateLevel();
-	
 	return success;
 }
 

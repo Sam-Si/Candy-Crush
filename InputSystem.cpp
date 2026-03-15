@@ -1,5 +1,6 @@
 #include "InputSystem.h"
-#include "Components.h"
+#include "MatchLogic.h"
+#include "AudioController.h"
 #include <cmath>
 #include <iostream>
 
@@ -173,6 +174,8 @@ bool InputSystem::isValidSwap(EntityID from, EntityID to) const
 
 void InputSystem::performMove(EntityID from, EntityID to)
 {
+	AudioController::getInstance().playSound("swap");
+
 	PositionComponent* fromPos = gameState.entityManager->getComponent<PositionComponent>(from);
 	PositionComponent* toPos = gameState.entityManager->getComponent<PositionComponent>(to);
 

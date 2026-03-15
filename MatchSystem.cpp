@@ -1,5 +1,6 @@
 #include "MatchSystem.h"
 #include "MatchLogic.h"
+#include "AudioController.h"
 
 MatchSystem::MatchSystem(GameState& state)
 	: gameState(state)
@@ -29,6 +30,7 @@ void MatchSystem::update(float dt)
 
 	if (possibleCombos.size() > 0)
 	{
+		AudioController::getInstance().playSound("match");
 		removeComboItems(possibleCombos);
 	}
 }

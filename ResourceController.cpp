@@ -57,7 +57,7 @@ bool ResourceController::loadResources()
 	resourceMap.clear();
 
 	// Load background
-	resourceMap["background"] = loadTexture("./images/BackGround.jpg", 200, 200, 200, 755, 600);
+	resourceMap["background"] = loadTexture("./images/BackGround.jpg", 30, 30, 30, 755, 600);
 
 	// Load game over screen
 	resourceMap["gameover"] = loadTexture("./images/gameover.png", 255, 0, 0, 376, 370);
