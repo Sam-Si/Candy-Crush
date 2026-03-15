@@ -3,27 +3,27 @@
 /*
 	Helper to get matchable color from entity.
 */
-GAME_TEX MatchLogic::getEntityColor(const EntityManager& entityManager, EntityID entity)
+std::string MatchLogic::getEntityColor(const EntityManager& entityManager, EntityID entity)
 {
 	if (entity == NULL_ENTITY)
 	{
-		return BACKGROUND; // Invalid color
+		return ""; // Invalid color
 	}
 	
 	const MatchableComponent* matchable = entityManager.getComponent<MatchableComponent>(entity);
 	if (matchable)
 	{
-		return matchable->color;
+		return matchable->colorId;
 	}
 	
 	// Fallback to sprite component if no matchable component
 	const SpriteComponent* sprite = entityManager.getComponent<SpriteComponent>(entity);
 	if (sprite)
 	{
-		return sprite->tex;
+		return sprite->textureId;
 	}
 	
-	return BACKGROUND;
+	return "";
 }
 
 /*
@@ -52,7 +52,7 @@ bool MatchLogic::checkIfValidMove(const Board& board, const EntityManager& entit
 	int y = toPos->y;
 
 	// Get the color of the entity being moved (the 'from' entity)
-	GAME_TEX fromColor = getEntityColor(entityManager, from);
+	std::string fromColor = getEntityColor(entityManager, from);
 
 	// Check horizontal combos to the left of the target position
 	for (int i = x - 1; i >= 0; i--)
@@ -162,9 +162,9 @@ std::set<EntityID> MatchLogic::findMatches(const Board& board, const EntityManag
 				continue;
 			}
 
-			GAME_TEX color0 = getEntityColor(entityManager, entity);
-			GAME_TEX color1 = getEntityColor(entityManager, next1);
-			GAME_TEX color2 = getEntityColor(entityManager, next2);
+			std::string color0 = getEntityColor(entityManager, entity);
+			std::string color1 = getEntityColor(entityManager, next1);
+			std::string color2 = getEntityColor(entityManager, next2);
 
 			// Found a potential match of 3
 			if (color1 == color0 && color2 == color0)
@@ -207,9 +207,9 @@ std::set<EntityID> MatchLogic::findMatches(const Board& board, const EntityManag
 				continue;
 			}
 
-			GAME_TEX color0 = getEntityColor(entityManager, entity);
-			GAME_TEX color1 = getEntityColor(entityManager, next1);
-			GAME_TEX color2 = getEntityColor(entityManager, next2);
+			std::string color0 = getEntityColor(entityManager, entity);
+			std::string color1 = getEntityColor(entityManager, next1);
+			std::string color2 = getEntityColor(entityManager, next2);
 
 			// Found a potential match of 3
 			if (color1 == color0 && color2 == color0)
@@ -255,7 +255,7 @@ std::set<EntityID> MatchLogic::findMatchesAt(const Board& board, const EntityMan
 		return matches;
 	}
 
-	GAME_TEX matchTex = getEntityColor(entityManager, entity);
+	std::string matchTex = getEntityColor(entityManager, entity);
 
 	// Check horizontal line
 	int horizontalCount = 1;
@@ -289,7 +289,7 @@ std::set<EntityID> MatchLogic::findMatchesAt(const Board& board, const EntityMan
 	moving in direction (deltaX, deltaY).
 */
 int MatchLogic::countMatchesInDirection(const Board& board, const EntityManager& entityManager,
-                                        int startX, int startY, int deltaX, int deltaY, GAME_TEX matchTex)
+                                        int startX, int startY, int deltaX, int deltaY, const std::string& matchTex)
 {
 	int count = 0;
 	int x = startX + deltaX;
@@ -318,7 +318,7 @@ int MatchLogic::countMatchesInDirection(const Board& board, const EntityManager&
 	moving in direction (deltaX, deltaY) and adds them to the result set.
 */
 void MatchLogic::collectMatchesInDirection(const Board& board, const EntityManager& entityManager,
-                                           int startX, int startY, int deltaX, int deltaY, GAME_TEX matchTex,
+                                           int startX, int startY, int deltaX, int deltaY, const std::string& matchTex,
                                            std::set<EntityID>& result)
 {
 	int x = startX + deltaX;

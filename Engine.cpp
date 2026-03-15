@@ -1,77 +1,74 @@
 #include "Engine.h"
 #include <SDL2/SDL.h>
 #include <iostream>
-using namespace std;
-Engine::Engine(){}
 
-Engine::~Engine(){}
+Engine::Engine() = default;
 
-void Engine::destroyGame(){}
-void Engine::initContollers()
+Engine::~Engine() = default;
+
+void Engine::destroyGame()
 {
-	sceneController = new SceneController();
-	resourceController = new ResourceController();
-	animationController = new AnimationController();
+}
+
+void Engine::initControllers()
+{
+	sceneController = std::make_unique<SceneController>();
+	resourceController = std::make_unique<ResourceController>();
 	sceneController->init();
 	resourceController->init(sceneController->getRenderer());
-	sceneController->setAnimationController(animationController);	
 }
+
 bool Engine::initGame()
 {
-	bool success = false;	
 	srand(time(NULL));
+	
+	bool success = true;
 	if (resourceController->loadResources() == false)
 	{
 		success = false;
 	}
 	
-	SDL_Texture* bg = resourceController->getResource(BACKGROUND);
+	SDL_Texture* bg = resourceController->getResource("background");
 	sceneController->setBackground(bg);
 	sceneController->generateLevel();
+	
 	return success;
 }
-void Engine::startGame(){
 
-	//gameloop
+void Engine::startGame()
+{
 	bool quit = false;
 	double previous = SDL_GetTicks();
 	double lag = 0.0f;
 	sceneController->setGameStartTime(previous);
+	
 	while (!quit)
 	{		
-		if (sceneController->quit)
+		if (sceneController->shouldQuit())
 		{
 			quit = true;
 		}
+		
 		double current = SDL_GetTicks();
 		double elapsed = current - previous;
 		previous = current;
 		lag += elapsed;
+		
 		while (lag >= MS_60_MS)
 		{
 			SDL_Event event;
-			while (SDL_PollEvent(&event)) {
-				if (event.type == SDL_WINDOWEVENT) {
-					if (event.window.type == SDL_WINDOWEVENT_CLOSE)
-					{
-						quit = true;
-					}
-				}
-				if (event.type == SDL_QUIT) {
-					
-						quit = true;					
-				}					
+			while (SDL_PollEvent(&event))
+			{
 				sceneController->handleEvent(&event);
 			}
 			sceneController->update();
 			lag -= MS_60_MS;
 		}
-		sceneController->renderScene();		
+		
+		sceneController->renderScene();
 	}
 
+	// RAII cleanup: sceneController and resourceController 
+	// are automatically destroyed when Engine is destroyed
 	sceneController->cleanup();
-	resourceController->cleanup();
-	delete animationController;
-	delete sceneController;
-	delete resourceController;
 }

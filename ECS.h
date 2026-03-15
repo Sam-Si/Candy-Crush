@@ -26,7 +26,10 @@ public:
 };
 
 /*
-	Typed component storage using unordered_map for sparse storage.
+	Typed component storage using sparse set for cache-friendly iteration.
+	Sparse set uses two vectors:
+	- dense: contiguous storage of (EntityID, T) pairs for cache locality
+	- sparse: maps EntityID to index in dense vector (or -1 if not present)
 */
 template<typename T>
 class ComponentArray : public IComponentArray
@@ -34,27 +37,60 @@ class ComponentArray : public IComponentArray
 public:
 	void insert(EntityID entity, T component)
 	{
-		components[entity] = component;
+		// Ensure sparse array is large enough
+		if (entity >= sparse.size())
+		{
+			sparse.resize(entity + 1, -1);
+		}
+
+		// If entity already has this component, update it
+		if (sparse[entity] != -1)
+		{
+			dense[sparse[entity]].second = component;
+			return;
+		}
+
+		// Add to dense array
+		sparse[entity] = static_cast<int>(dense.size());
+		dense.emplace_back(entity, std::move(component));
 	}
 
 	void remove(EntityID entity)
 	{
-		components.erase(entity);
+		if (entity >= sparse.size() || sparse[entity] == -1)
+		{
+			return;
+		}
+
+		// Get index of element to remove
+		int index = sparse[entity];
+		int lastIndex = static_cast<int>(dense.size()) - 1;
+
+		// If not the last element, swap with last
+		if (index != lastIndex)
+		{
+			EntityID lastEntity = dense[lastIndex].first;
+			dense[index] = std::move(dense[lastIndex]);
+			sparse[lastEntity] = index;
+		}
+
+		// Remove last element and mark sparse as empty
+		dense.pop_back();
+		sparse[entity] = -1;
 	}
 
 	T* get(EntityID entity)
 	{
-		auto it = components.find(entity);
-		if (it != components.end())
+		if (entity >= sparse.size() || sparse[entity] == -1)
 		{
-			return &it->second;
+			return nullptr;
 		}
-		return nullptr;
+		return &dense[sparse[entity]].second;
 	}
 
 	bool has(EntityID entity) const
 	{
-		return components.find(entity) != components.end();
+		return entity < sparse.size() && sparse[entity] != -1;
 	}
 
 	void entityDestroyed(EntityID entity) override
@@ -62,13 +98,24 @@ public:
 		remove(entity);
 	}
 
-	std::unordered_map<EntityID, T>& getAll()
+	// Returns contiguous dense storage for cache-friendly iteration
+	const std::vector<std::pair<EntityID, T>>& getAll() const
 	{
-		return components;
+		return dense;
+	}
+
+	std::size_t size() const
+	{
+		return dense.size();
 	}
 
 private:
-	std::unordered_map<EntityID, T> components;
+	// Dense array: contiguous storage for cache locality
+	// Stores (EntityID, Component) pairs
+	std::vector<std::pair<EntityID, T>> dense;
+
+	// Sparse array: maps EntityID to index in dense array (-1 = not present)
+	std::vector<int> sparse;
 };
 
 /*
@@ -118,7 +165,7 @@ public:
 	}
 
 	template<typename T>
-	std::unordered_map<EntityID, T>& getAllComponents()
+	const std::vector<std::pair<EntityID, T>>& getAllComponents()
 	{
 		return getComponentArray<T>()->getAll();
 	}

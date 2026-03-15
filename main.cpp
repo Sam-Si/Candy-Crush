@@ -2,9 +2,9 @@
 
 int main(int argc, char* args[])
 {
-	Engine* engine = new Engine();
-	engine->initContollers();
-	engine->initGame();	
-	engine->startGame();
+	Engine engine;
+	engine.initControllers();
+	engine.initGame();	
+	engine.startGame();
 	return 0;
 }

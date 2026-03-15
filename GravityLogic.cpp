@@ -86,7 +86,7 @@ std::vector<FillInfo> GravityLogic::computeFills(const Board& board)
 		{
 			if (board.isEmpty(x, y))
 			{
-				GAME_TEX tex = getRandomObj();
+				std::string tex = getRandomColorId();
 				FillInfo info = { x, y, tex };
 				fills.push_back(info);
 			}

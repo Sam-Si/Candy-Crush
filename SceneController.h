@@ -1,81 +1,66 @@
 #pragma once
-#include "ECS.h"
-#include "Components.h"
-#include "AnimationController.h"
-#include "Board.h"
-#include "MatchLogic.h"
-#include "GravityLogic.h"
+
+#include "GameState.h"
+#include "ISystem.h"
+#include "InputSystem.h"
+#include "MatchSystem.h"
+#include "GravitySystem.h"
+#include "AnimationSystem.h"
+#include "RenderSystem.h"
 #include "UIManager.h"
-#include <vector>
-#include <set>
-#include <queue>
-#include <iostream>
-#include <fstream>
-using namespace std;
+#include <SDL2/SDL.h>
+#include <memory>
 
 /*
-	Main controller responsible for game scene. Handles input, updates game state, uses animation manager etc.
-	Uses ECS architecture: Entities are IDs, components store data, systems process logic.
+	SceneController: Pure orchestrator for game systems.
+	Initializes all systems and calls them in order each frame.
+	No game logic - only system coordination.
 */
 class SceneController
 {
-
 public:
 	SceneController();
 	~SceneController();
 
-	void renderScene();							//render scene 
-	void update();								//updates scene according to user input and animation state
-	bool init();								//inits scene controller
+	// Lifecycle
+	bool init();
+	void cleanup();
+
+	// Per-frame operations
+	void update();
+	void renderScene();
+	void handleEvent(SDL_Event* event);
+
+	// Accessors
 	SDL_Renderer* getRenderer();
-	EntityID pickEntity(SDL_Point&);			//picks game entity from a given point (game screen coordinates)
-	void setBackground(SDL_Texture*);
-	void setAnimationController(AnimationController* animController);	//animation controller injected from engine.
-	void handleEvent(SDL_Event*);				//handles user inputs
+	void setBackground(SDL_Texture* bg);
+	void setGameStartTime(Uint32 time);
 
-	void generateLevel();						//generate level 
-
-	void performMove(EntityID from, EntityID to);						//if it is a valid swap then performs the swap
-	void checkPossipleCombosOnBoard();								//checks all possible combos at that state.
-	void removeComboItems(const std::set<EntityID>& matches);			//when combo found, it removes combo objects from board
-	void collapseBoard();											//after a successful removal, collapse the objects to fill empty slots
-	void fillEmptySlots();											//after collapsing, fill empty slots at top
-	void cleanup();													
-	void setGameStartTime(Uint32);
-	bool checkIfTimeIsUp();	
-	bool quit = false;
+	// Game control
+	void generateLevel();
+	bool shouldQuit() const { return gameState.quit; }
 
 private:
-	SDL_Window*		gameWindow = 0;
-	SDL_Surface*	gameSurface = 0;
+	// Shared game state
+	GameState gameState;
 
-	SDL_Renderer*	renderer = NULL;
-	EntityID		selectedEntity = NULL_ENTITY;		//picked entity
-	SDL_Texture*	background = NULL;
-	Board*			board = NULL;						//game board that holds EntityIDs
-	EntityManager*	entityManager = nullptr;			//ECS entity manager
-	bool			collapseFlag = false;
-	bool			moveFlag = false;
-	bool			fillFlag = false;
-	bool			gameOver = false;
-	bool			handleInput = true;
-	AnimationController* animationController;			//animation controller reference
-	UIManager* uiManager = nullptr;						//UI manager for HUD rendering
+	// SDL resources
+	SDL_Window* gameWindow = nullptr;
+	SDL_Surface* gameSurface = nullptr;
 
-	void onMouseButtonDown(SDL_Event*);
-	void onMouseButtonUp(SDL_Event*);
-	void onMouseMotion(SDL_Event*);
+	// Systems
+	std::unique_ptr<InputSystem> inputSystem;
+	std::unique_ptr<MatchSystem> matchSystem;
+	std::unique_ptr<GravitySystem> gravitySystem;
+	std::unique_ptr<AnimationSystem> animationSystem;
+	std::unique_ptr<RenderSystem> renderSystem;
+	std::unique_ptr<UIManager> uiManager;
 
-	//to transfer data to update after waiting animation completed
-	std::set<EntityID> comboItems;	 
+	// Entity manager and board
+	std::unique_ptr<EntityManager> entityManager;
+	std::unique_ptr<Board> board;
 
-	std::queue<SwapData> swaps;
-
-	// Game state (HUD displays these values)
-	Uint32			gameStartTime;
-	int score = 0;
-	
-	// Helper methods
-	EntityID createGamePiece(int x, int y, GAME_TEX color, bool draggable);
-	void renderEntity(EntityID entity);
+	// Internal helpers
+	void updateInputState();
+	EntityID createGamePiece(int x, int y, const std::string& color, bool draggable);
 };
