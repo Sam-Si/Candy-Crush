@@ -38,13 +38,13 @@ public:
 private:
 	// Helper to count consecutive matching entities in a direction
 	static int countMatchesInDirection(const Board& board, const EntityManager& entityManager, 
-	                                   int startX, int startY, int deltaX, int deltaY, GAME_TEX matchTex);
+	                                   int startX, int startY, int deltaX, int deltaY, const std::string& matchTex);
 
 	// Helper to collect all matching entities in a line
 	static void collectMatchesInDirection(const Board& board, const EntityManager& entityManager,
-	                                      int startX, int startY, int deltaX, int deltaY, GAME_TEX matchTex,
+	                                      int startX, int startY, int deltaX, int deltaY, const std::string& matchTex,
 	                                      std::set<EntityID>& result);
 	
 	// Helper to get matchable color from entity
-	static GAME_TEX getEntityColor(const EntityManager& entityManager, EntityID entity);
+	static std::string getEntityColor(const EntityManager& entityManager, EntityID entity);
 };

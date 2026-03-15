@@ -214,7 +214,7 @@ void UIManager::render()
 	// Render game over if visible
 	if (gameOverVisible)
 	{
-		SDL_Texture* goTexture = ResourceController::getResource(GAMEOVER);
+		SDL_Texture* goTexture = ResourceController::getResource("gameover");
 		if (goTexture)
 		{
 			SDL_RenderCopyEx(renderer, goTexture, nullptr, &gameoverRect, 0.0, nullptr, SDL_FLIP_NONE);

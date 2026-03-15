@@ -23,13 +23,16 @@ link_directories(
 
 add_executable(CandyCrush 
     main.cpp 
-    Animation.cpp 
-    AnimationController.cpp 
+    AnimationSystem.cpp 
     Board.cpp
     ECS.cpp
     Engine.cpp 
     GravityLogic.cpp
+    GravitySystem.cpp
+    InputSystem.cpp
     MatchLogic.cpp
+    MatchSystem.cpp
+    RenderSystem.cpp
     ResourceController.cpp 
     SceneController.cpp
     UIManager.cpp

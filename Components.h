@@ -1,11 +1,12 @@
 #pragma once
 
+#include <string>
 #include "Common.h"
-#include <SDL2/SDL.h>
 
 /*
 	Component definitions for the ECS architecture.
 	All components are pure data structures with no behavior.
+	No SDL dependencies - renderer-agnostic.
 */
 
 /*
@@ -19,21 +20,21 @@ struct PositionComponent
 
 /*
 	Sprite component: Visual representation and rendering data.
+	Uses generic float values - no SDL dependencies.
 */
 struct SpriteComponent
 {
-	GAME_TEX tex = BLUE_OBJ;  // Texture type/color
-	SDL_Rect targetRect;      // Screen position and dimensions for rendering
+	std::string textureId;  // Texture identifier (e.g., "blue", "red")
+	float x = 0.0f;         // Screen X position
+	float y = 0.0f;         // Screen Y position
+	float width = 38.0f;    // Sprite width
+	float height = 38.0f;   // Sprite height
 
-	SpriteComponent()
-	{
-		targetRect = { 0, 0, STONE_WIDTH, STONE_HEIGHT };
-	}
+	SpriteComponent() = default;
 
-	SpriteComponent(GAME_TEX texture, int x, int y)
+	SpriteComponent(const std::string& texId, float posX, float posY)
+		: textureId(texId), x(posX), y(posY), width(38.0f), height(38.0f)
 	{
-		tex = texture;
-		targetRect = { x, y, STONE_WIDTH, STONE_HEIGHT };
 	}
 };
 
@@ -43,7 +44,10 @@ struct SpriteComponent
 */
 struct MatchableComponent
 {
-	GAME_TEX color = BLUE_OBJ;  // Color for matching (BLUE_OBJ, RED_OBJ, etc.)
+	std::string colorId;  // Color identifier for matching (e.g., "blue", "red")
+	
+	MatchableComponent() = default;
+	explicit MatchableComponent(const std::string& color) : colorId(color) {}
 };
 
 /*
@@ -61,6 +65,26 @@ struct GamePieceInit
 {
 	int x;
 	int y;
-	GAME_TEX color;
+	std::string color;
 	bool draggable;
+};
+
+/*
+	Animation types for AnimationComponent
+*/
+enum ANIMATION_TYPE { MOVE_ANIM, DESTROY_ANIM };
+
+/*
+	Animation component: Pure data for animation state.
+	Used by AnimationSystem to interpolate sprite positions.
+*/
+struct AnimationComponent
+{
+	ANIMATION_TYPE type = MOVE_ANIM;  // Animation type
+	int startX = 0;                   // Starting grid X
+	int startY = 0;                   // Starting grid Y
+	int targetX = 0;                  // Target grid X
+	int targetY = 0;                  // Target grid Y
+	int duration = 0;                 // Duration in milliseconds
+	int elapsed = 0;                  // Elapsed time in milliseconds
 };

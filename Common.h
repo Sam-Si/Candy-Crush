@@ -12,6 +12,7 @@ Coordinate system
 #pragma once
 #include <time.h>
 #include <stdlib.h>
+#include <string>
 #include <SDL2/SDL.h>
 
 enum GAME_TEX{ BACKGROUND, GAMEOVER,BLUE_OBJ, GREEN_OBJ, PURPLE_OBJ, RED_OBJ, YELLOW_OBJ };
@@ -81,12 +82,70 @@ inline GAME_TEX getRandomObj()
 	return c;
 }
 
+// String-based random color generator for new code
+inline std::string getRandomColorId()
+{
+	static const std::string colors[] = { "blue", "green", "purple", "red", "yellow" };
+	return colors[rand() % 5];
+}
+
+// Generic point struct - no SDL dependency
+struct Point
+{
+	int x = 0;
+	int y = 0;
+	Point() = default;
+	Point(int x_, int y_) : x(x_), y(y_) {}
+};
+
 /*
 	Data structrue with 2 positions.
 	We usually use it to store 2 positions those will be swap after animation compeletes.
 */
 struct SwapData
 {
-	SDL_Point from;
-	SDL_Point to;
+	Point from;
+	Point to;
 };
+
+// Generic rect struct - no SDL dependency  
+struct Rect
+{
+	float x = 0.0f;
+	float y = 0.0f;
+	float width = 0.0f;
+	float height = 0.0f;
+	
+	Rect() = default;
+	Rect(float x_, float y_, float w_, float h_) : x(x_), y(y_), width(w_), height(h_) {}
+};
+
+/*
+	SDL-free version: Calculate render position from grid coordinate.
+	Returns a generic Rect.
+*/
+inline Rect calculateRenderRectFromCoordinate(int x, int y)
+{
+	Rect r;
+	r.x = static_cast<float>(RENDER_AREA_X_POS + (x * STONE_WIDTH + (x * GAP_X)));
+	r.y = static_cast<float>(RENDER_AREA_Y_POS + (y * STONE_HEIGHT + (y * GAP_Y)));
+	r.width = static_cast<float>(STONE_WIDTH);
+	r.height = static_cast<float>(STONE_HEIGHT);
+	return r;
+}
+
+/*
+	SDL-free version: Find grid coordinate from mouse position.
+	Takes Point by reference for output.
+*/
+inline void calculateCoordinateFromMousePos(int mouseX, int mouseY, Point& out)
+{
+	int relative_x = mouseX - RENDER_AREA_X_POS;
+	int relative_y = mouseY - RENDER_AREA_Y_POS;
+
+	int k = relative_x - (relative_x / STONE_WIDTH - 1) * GAP_X;
+	int l = relative_y - (relative_y / STONE_HEIGHT - 1) * GAP_Y;
+
+	out.x = k / STONE_WIDTH;
+	out.y = l / STONE_HEIGHT;
+}

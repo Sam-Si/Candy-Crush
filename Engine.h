@@ -1,9 +1,12 @@
 #pragma once
+
+#include <memory>
 #include "SceneController.h"
 #include "ResourceController.h"
+
 /*
-	root of the game
-	creates controllers, initializes them and starts the game loop
+	Root of the game.
+	Creates controllers using RAII, initializes them and starts the game loop.
 */
 class Engine
 {
@@ -11,19 +14,20 @@ public:
 	Engine();
 	~Engine();
 
-	bool initGame();		//load resoruces, sets background and generate level
-	void initContollers();	//inits controllers
-	void startGame();		//starts game and game loop
-	void destroyGame();		//destroy game
+	// Deleted copy/move to prevent accidental copying
+	Engine(const Engine&) = delete;
+	Engine& operator=(const Engine&) = delete;
+	Engine(Engine&&) = delete;
+	Engine& operator=(Engine&&) = delete;
+
+	bool initGame();		// load resources, sets background and generate level
+	void initControllers();	// inits controllers
+	void startGame();		// starts game and game loop
+	void destroyGame();		// destroy game
 
 private:
-	//controllers
-	SceneController*		sceneController = NULL;	
-	ResourceController*		resourceController = NULL;
-	AnimationController*	animationController = NULL;
-
-	SDL_Renderer* renderer = NULL;
-	Uint32 timeLeft(Uint32);
-
+	// Controllers owned via unique_ptr - automatic cleanup
+	std::unique_ptr<SceneController> sceneController;
+	std::unique_ptr<ResourceController> resourceController;
 };
 

@@ -25,7 +25,7 @@ struct FillInfo
 {
 	int x;
 	int y;
-	GAME_TEX tex;
+	std::string tex;
 };
 
 /*
@@ -35,7 +35,7 @@ struct FillInfo
 struct GravityResult
 {
 	std::vector<GravityMove> moves;
-	std::vector<SDL_Point> sourcesToClear;  // positions that became empty after moves
+	std::vector<Point> sourcesToClear;  // positions that became empty after moves
 	bool needsFill;
 };
 
