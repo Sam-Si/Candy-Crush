@@ -58,3 +58,5 @@ game_log.txt
 
 # --- Project Specific ---
 # (Add any specific asset-generation or temp files here)
+
+.system_meta/
