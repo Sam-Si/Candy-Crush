@@ -31,9 +31,6 @@ const int STONE_HEIGHT			= 38;   //game object height
 const int GAME_MATRIX_SIZE_X	= 8;
 const int GAME_MATRIX_SIZE_Y	= 8;
 
-const int GAMEOVER_WIDTH		= 376;	//gameover image width
-const int GAMEOVER_HEIGHT		= 370;  //gameover image height
-
 const int DESTROY_ANIMATION_TIME = 500; // 0.5 second
 const int MOVE_ANIMATION_TIME	 = 400; //0.4 second
 

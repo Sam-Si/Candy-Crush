@@ -1,6 +1,6 @@
 #include "InputSystem.h"
 #include "MatchLogic.h"
-#include "AudioController.h"
+#include "Events.h"
 #include <cmath>
 #include <iostream>
 
@@ -174,7 +174,11 @@ bool InputSystem::isValidSwap(EntityID from, EntityID to) const
 
 void InputSystem::performMove(EntityID from, EntityID to)
 {
-	AudioController::getInstance().playSound("swap");
+	// Publish SwapExecutedEvent for decoupled handling
+	if (gameState.eventBus)
+	{
+		gameState.eventBus->publish(SwapExecutedEvent(from, to));
+	}
 
 	PositionComponent* fromPos = gameState.entityManager->getComponent<PositionComponent>(from);
 	PositionComponent* toPos = gameState.entityManager->getComponent<PositionComponent>(to);

@@ -1,6 +1,6 @@
 #include "MatchSystem.h"
 #include "MatchLogic.h"
-#include "AudioController.h"
+#include "Events.h"
 
 MatchSystem::MatchSystem(GameState& state)
 	: gameState(state)
@@ -30,7 +30,12 @@ void MatchSystem::update(float dt)
 
 	if (possibleCombos.size() > 0)
 	{
-		AudioController::getInstance().playSound("match");
+		// Publish MatchFoundEvent for decoupled handling
+		if (gameState.eventBus)
+		{
+			std::vector<EntityID> matchesVector(possibleCombos.begin(), possibleCombos.end());
+			gameState.eventBus->publish(MatchFoundEvent(std::move(matchesVector)));
+		}
 		removeComboItems(possibleCombos);
 	}
 }
@@ -41,12 +46,7 @@ void MatchSystem::removeComboItems(const std::set<EntityID>& matches)
 
 	for (EntityID entity : matches)
 	{
-		gameState.score += 1;
-		if (gameState.uiManager)
-		{
-			gameState.uiManager->updateScore(gameState.score);
-		}
-
+		// Note: Score is now handled by ScoreSystem via MatchFoundEvent
 		// Add destroy animation
 		gameState.animationSystem->addDestroyAnimation(*gameState.entityManager, entity);
 		gameState.comboItems.insert(entity);

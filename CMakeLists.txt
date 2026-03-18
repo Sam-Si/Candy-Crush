@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(CandyCrush)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(PkgConfig REQUIRED)
 
@@ -28,6 +29,7 @@ add_executable(CandyCrush
     main.cpp 
     AnimationSystem.cpp 
     AudioController.cpp
+    AudioSystem.cpp
     Board.cpp
     ECS.cpp
     Engine.cpp 
@@ -39,6 +41,7 @@ add_executable(CandyCrush
     RenderSystem.cpp
     ResourceController.cpp 
     SceneController.cpp
+    ScoreSystem.cpp
     UIManager.cpp
 )
 

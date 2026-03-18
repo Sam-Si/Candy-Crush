@@ -4,6 +4,7 @@
 #include "Board.h"
 #include "AnimationSystem.h"
 #include "UIManager.h"
+#include "EventBus.h"
 #include "Common.h"
 #include <set>
 #include <queue>
@@ -22,6 +23,9 @@ struct GameState
 	// Systems
 	AnimationSystem* animationSystem = nullptr;
 	UIManager* uiManager = nullptr;
+
+	// EventBus for decoupled system communication (owned by SceneController)
+	EventBus* eventBus = nullptr;
 
 	// Rendering
 	SDL_Renderer* renderer = nullptr;

@@ -8,6 +8,9 @@
 #include "AnimationSystem.h"
 #include "RenderSystem.h"
 #include "UIManager.h"
+#include "AudioSystem.h"
+#include "ScoreSystem.h"
+#include "EventBus.h"
 #include <SDL2/SDL.h>
 #include <memory>
 
@@ -52,6 +55,8 @@ private:
 	std::unique_ptr<InputSystem> inputSystem;
 	std::unique_ptr<MatchSystem> matchSystem;
 	std::unique_ptr<GravitySystem> gravitySystem;
+	std::unique_ptr<AudioSystem> audioSystem;
+	std::unique_ptr<ScoreSystem> scoreSystem;
 	std::unique_ptr<AnimationSystem> animationSystem;
 	std::unique_ptr<RenderSystem> renderSystem;
 	std::unique_ptr<UIManager> uiManager;
@@ -59,6 +64,9 @@ private:
 	// Entity manager and board
 	std::unique_ptr<EntityManager> entityManager;
 	std::unique_ptr<Board> board;
+
+	// EventBus for decoupled system communication
+	std::unique_ptr<EventBus> eventBus;
 
 	// Internal helpers
 	void updateInputState();
