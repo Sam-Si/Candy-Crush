@@ -11,11 +11,13 @@ pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
 pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
 pkg_check_modules(SDL2_MIXER REQUIRED SDL2_mixer)
 
+# Include directories for all source folders
 include_directories(
     ${SDL2_INCLUDE_DIRS} 
     ${SDL2_IMAGE_INCLUDE_DIRS} 
     ${SDL2_TTF_INCLUDE_DIRS}
     ${SDL2_MIXER_INCLUDE_DIRS}
+    src
 )
 
 link_directories(
@@ -25,24 +27,30 @@ link_directories(
     ${SDL2_MIXER_LIBRARY_DIRS}
 )
 
+# Collect all source files from organized folders
 add_executable(CandyCrush 
-    main.cpp 
-    AnimationSystem.cpp 
-    AudioController.cpp
-    AudioSystem.cpp
-    Board.cpp
-    ECS.cpp
-    Engine.cpp 
-    GravityLogic.cpp
-    GravitySystem.cpp
-    InputSystem.cpp
-    MatchLogic.cpp
-    MatchSystem.cpp
-    RenderSystem.cpp
-    ResourceController.cpp 
-    SceneController.cpp
-    ScoreSystem.cpp
-    UIManager.cpp
+    src/main.cpp 
+    # Engine
+    src/engine/Engine.cpp 
+    src/engine/SceneController.cpp
+    # ECS
+    src/ecs/ECS.cpp
+    # Systems
+    src/systems/AnimationSystem.cpp 
+    src/systems/AudioSystem.cpp
+    src/systems/GravitySystem.cpp
+    src/systems/InputSystem.cpp
+    src/systems/MatchSystem.cpp
+    src/systems/RenderSystem.cpp
+    src/systems/ScoreSystem.cpp
+    # Game logic
+    src/game/Board.cpp
+    src/game/GravityLogic.cpp
+    src/game/MatchLogic.cpp
+    # Controllers
+    src/controllers/AudioController.cpp
+    src/controllers/ResourceController.cpp 
+    src/controllers/UIManager.cpp
 )
 
 target_link_libraries(CandyCrush 
