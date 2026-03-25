@@ -1,5 +1,5 @@
 #include "GravitySystem.h"
-#include "GravityLogic.h"
+#include "../game/GravityLogic.h"
 
 GravitySystem::GravitySystem(GameState& state)
 	: gameState(state)

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ISystem.h"
-#include "GameState.h"
-#include "Components.h"
+#include "../ecs/ISystem.h"
+#include "../game/GameState.h"
+#include "../ecs/Components.h"
 
 /*
 	GravitySystem: Handles board collapse and empty slot filling.

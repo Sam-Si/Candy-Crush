@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ECS.h"
+#include "../ecs/ECS.h"
 #include "Board.h"
-#include "AnimationSystem.h"
-#include "UIManager.h"
-#include "EventBus.h"
-#include "Common.h"
+#include "../systems/AnimationSystem.h"
+#include "../controllers/UIManager.h"
+#include "../events/EventBus.h"
+#include "../common/Common.h"
 #include <set>
 #include <queue>
 #include <SDL2/SDL.h>

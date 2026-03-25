@@ -1,6 +1,6 @@
 #include "MatchSystem.h"
-#include "MatchLogic.h"
-#include "Events.h"
+#include "../game/MatchLogic.h"
+#include "../events/Events.h"
 
 MatchSystem::MatchSystem(GameState& state)
 	: gameState(state)
